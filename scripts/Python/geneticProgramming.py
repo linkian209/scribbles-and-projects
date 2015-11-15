@@ -2,7 +2,7 @@
 # ---------------------------
 # Creates squares from random
 # points over generations.
-# Author: Ian Drake © 2015
+# Author: Ian Drake Copyright: 2015
 
 import matplotlib.pyplot as plt
 import sys, numpy
