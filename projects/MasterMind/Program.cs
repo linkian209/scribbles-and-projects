@@ -6,37 +6,40 @@ using System.Threading.Tasks;
 
 namespace MasterMind
 {
-    class Program
+    // Globals
+    struct Globals
     {
-        // Globals
-        const int CODE_SIZE = 4;
-        // Find Struct
-        struct Find
-        {
-            public int data, currentIndex;
-            public bool found;
-            public int[] indexes;
-            public bool minusAdded;
+        public const int CODE_SIZE = 4;
+        public const int DEFAULT_GUESSES = 10;
+    }
+    // Find Struct
+   struct Find
+    {
+        public int data, currentIndex;
+        public bool found;
+        public int[] indexes;
+        public bool minusAdded;
 
-            public Find(int d)
+        public Find(int d)
+        {
+            data = d;
+            currentIndex = 0;
+            found = false;
+            minusAdded = false;
+            indexes = new int[Globals.CODE_SIZE];
+            for (int i = 0; i < Globals.CODE_SIZE; ++i)
             {
-                data = d;
-                currentIndex = 0;
-                found = false;
-                minusAdded = false;
-                indexes = new int[CODE_SIZE];
-                for(int i = 0; i < CODE_SIZE; ++i)
-                {
-                    indexes[i] = -1;
-                }
+                indexes[i] = -1;
             }
         }
-
+    }
+    class Program
+    {
         static void Main(string[] args)
         {
             // Application Variables
-            int[] secretCode = new int[CODE_SIZE];
-            int numOfGuesses = 5; // Default to 5
+            int[] secretCode = new int[Globals.CODE_SIZE];
+            int numOfGuesses = Globals.DEFAULT_GUESSES; 
             if(args.Length != 0)
             {
                 numOfGuesses = int.Parse(args[0]);
@@ -45,7 +48,7 @@ namespace MasterMind
             // Create Secret Code
             Random rand = new Random();
             //Console.Out.Write("Secret Code: ");
-            for(int i = 0; i < CODE_SIZE; ++i)
+            for(int i = 0; i < Globals.CODE_SIZE; ++i)
             {
                 secretCode[i] = (rand.Next() % 6) + 1;
                 //Console.Out.Write("[" + secretCode[i] + "]");
@@ -69,7 +72,15 @@ namespace MasterMind
                     if(int.TryParse(strGuess, out guess))
                     {
                         guess = int.Parse(strGuess);
-                        parsed = true;
+                        // If we have more digits than we should, we need to guess again
+                        if (guess >= Math.Pow(10, Globals.CODE_SIZE))
+                        {
+                            Console.Out.Write(strGuess + " has too many digits. ");
+                        }
+                        else
+                        {
+                            parsed = true;
+                        }
                     }
                     else
                     {
@@ -78,13 +89,13 @@ namespace MasterMind
                 } while (!parsed);
 
                 // Make an array out of the user guess
-                int[] userGuess = new int[CODE_SIZE];
-                for(int j = 0; j < CODE_SIZE; ++j)
+                int[] userGuess = new int[Globals.CODE_SIZE];
+                for(int j = 0; j < Globals.CODE_SIZE; ++j)
                 {
                     // Get each individual number of the array
                     // Dividing by 10 ^ j gets us the correct digit in the ones place, 
                     // then % 10 to get the single digit
-                    userGuess[CODE_SIZE-1-j] = (guess / Convert.ToInt32(Math.Pow(10,j))) % 10;
+                    userGuess[Globals.CODE_SIZE -1-j] = (guess / Convert.ToInt32(Math.Pow(10,j))) % 10;
                 }
 
                 /* FOR DEBUG
@@ -105,12 +116,24 @@ namespace MasterMind
                 if(cracked)
                 {
                     Console.Out.Write("You Solved it!!! You got it correct in {0} guess" + (numOfTries > 1 ? ".\n" : "es.\n"), numOfTries);
+                    Console.Out.Write("The secret code was: ");
+                    foreach (int i in secretCode)
+                    {
+                        Console.Out.Write("[{0}]", i);
+                    }
+                    Console.Out.Write("\n");
                 }
 
                 if(numOfTries == numOfGuesses)
                 {
                     complete = true;
                     Console.Out.Write("You Lose :(\n");
+                    Console.Out.Write("The secret code was: ");
+                    foreach(int i in secretCode)
+                    {
+                        Console.Out.Write("[{0}]", i);
+                    }
+                    Console.Out.Write("\n");
                 }
             } while (!complete && !cracked);
         }
@@ -123,14 +146,14 @@ namespace MasterMind
             int numOfStars = 0, numOfMinuses = 0;
 
             // Make a copy of the secret code
-            int[] copy = new int[CODE_SIZE];
-            for(int q = 0; q < CODE_SIZE; ++q)
+            int[] copy = new int[Globals.CODE_SIZE];
+            for(int q = 0; q < Globals.CODE_SIZE; ++q)
             {
                 copy[q] = secretCode[q];
             }
 
             // Now check to see how many stars we have
-            for(int i = 0; i < CODE_SIZE; ++i)
+            for(int i = 0; i < Globals.CODE_SIZE; ++i)
             {
                 // If we subtract the numbers and get a 0, they are the same.
                 copy[i] -= userCode[i];
@@ -204,7 +227,7 @@ namespace MasterMind
             Find retval = new Find(num);
 
             // Check to see if we can find the number
-            for(int i = 0; i < CODE_SIZE; ++i)
+            for(int i = 0; i < Globals.CODE_SIZE; ++i)
             {
                 if(code[i] == num)
                 {
